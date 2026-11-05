@@ -98,3 +98,15 @@ docker run -p 8080:80 echo-web
 ```
 
 A imagem usa nginx com fallback de SPA para `index.html`.
+
+## Stack completa com Docker
+
+Para subir API, worker e web juntos, use o profile `full` do compose do
+`echo-api` (os três repositórios precisam estar em diretórios irmãos):
+
+```bash
+cd ../echo-api
+docker compose --profile full up -d --build
+```
+
+A web fica em `http://localhost:3000` e a API em `http://localhost:3333`.
