@@ -47,7 +47,7 @@ function RouteComponent() {
 	const onSubmit = async (data: RegisterFormData) => {
 		try {
 			await registerMutation.mutateAsync(data);
-			navigate({ to: "/sign-in", search: { plan: planId } });
+			navigate({ to: "/sign-in", search: { plan: planId, registered: true } });
 		} catch (error) {
 			console.error("Erro ao criar conta:", error);
 		}

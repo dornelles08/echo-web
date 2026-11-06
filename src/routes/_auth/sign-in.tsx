@@ -5,7 +5,7 @@ import {
 	useNavigate,
 	useSearch,
 } from "@tanstack/react-router";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff, LogIn } from "lucide-react";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -20,15 +20,21 @@ import { SocialSignInButtons } from "./-components/social-buttons";
 
 export const Route = createFileRoute("/_auth/sign-in")({
 	component: RouteComponent,
-	validateSearch: (search: Record<string, unknown>) => ({
+	validateSearch: (
+		search: Record<string, unknown>,
+	): { plan: string | undefined; registered?: boolean } => ({
 		plan: search.plan as string | undefined,
+		registered:
+			search.registered === true || search.registered === "true"
+				? true
+				: undefined,
 	}),
 });
 
 function RouteComponent() {
 	const [showPassword, setShowPassword] = useState(false);
 	const navigate = useNavigate();
-	const { plan: planId } = useSearch({ from: "/_auth/sign-in" });
+	const { plan: planId, registered } = useSearch({ from: "/_auth/sign-in" });
 	const loginMutation = useLogin();
 	const socialLoginMutation = useSocialLogin();
 
@@ -62,6 +68,13 @@ function RouteComponent() {
 
 	return (
 		<>
+			{registered && (
+				<div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-4 py-3 rounded-xl text-sm flex items-center gap-2 mb-6">
+					<CheckCircle2 className="w-5 h-5 shrink-0" />
+					Conta criada com sucesso! Faça login para continuar.
+				</div>
+			)}
+
 			<p className="text-center text-muted-foreground mb-8 text-lg">
 				Faça login para acessar sua conta
 			</p>
