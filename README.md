@@ -13,7 +13,7 @@ Frontend do Echo — upload, transcrição e resumo de áudios e vídeos.
 
 ## Setup
 
-Requisitos: Node.js 22+ e pnpm. A API (`echo-api`) precisa estar rodando.
+Requisitos: Node.js 24+ e pnpm. A API (`echo-api`) precisa estar rodando.
 
 ```bash
 pnpm install
