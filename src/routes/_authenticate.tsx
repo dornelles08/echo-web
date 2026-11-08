@@ -19,7 +19,7 @@ function AuthneticateLayout() {
 			<Topbar />
 
 			<main className="flex-1 p-4 md:p-8 overflow-hidden">
-				<div className="max-w-7xl mx-auto h-full overflow-hidden">
+				<div className="max-w-7xl mx-auto h-full overflow-y-auto">
 					<Outlet />
 				</div>
 			</main>

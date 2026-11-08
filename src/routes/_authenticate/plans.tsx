@@ -68,7 +68,7 @@ function PlansPage() {
 	);
 
 	return (
-		<div className="min-h-screen bg-background relative overflow-hidden">
+		<div className="min-h-full bg-background relative overflow-x-hidden">
 			<div className="absolute inset-0 -z-10">
 				<div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 via-background to-background dark:from-emerald-950/20 dark:via-background dark:to-background" />
 				<div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-200/15 dark:bg-emerald-800/10 rounded-full blur-3xl" />
