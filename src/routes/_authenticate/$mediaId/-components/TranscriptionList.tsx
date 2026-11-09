@@ -36,7 +36,22 @@ export function TranscriptionList({
 	const handleCopy = async () => {
 		if (!fullText) return;
 		try {
-			await navigator.clipboard.writeText(fullText);
+			if (navigator.clipboard && window.isSecureContext) {
+				await navigator.clipboard.writeText(fullText);
+			} else {
+				const textarea = document.createElement("textarea");
+				textarea.value = fullText;
+				textarea.style.position = "fixed";
+				textarea.style.top = "0";
+				textarea.style.left = "0";
+				textarea.style.opacity = "0";
+				document.body.appendChild(textarea);
+				textarea.focus();
+				textarea.select();
+				const ok = document.execCommand("copy");
+				document.body.removeChild(textarea);
+				if (!ok) throw new Error("copy failed");
+			}
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {

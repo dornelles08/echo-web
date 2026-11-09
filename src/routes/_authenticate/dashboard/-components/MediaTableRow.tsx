@@ -74,9 +74,10 @@ export function MediaTableRow({
 					<button
 						type="button"
 						onClick={handleDeleteClick}
-						className="text-xs text-destructive hover:text-destructive/80 underline underline-offset-4"
+						className="text-muted-foreground hover:text-destructive transition-colors p-1"
+						aria-label="Excluir mídia"
 					>
-						<Trash2 className="w-3 h-3" /> Excluir
+						<Trash2 className="w-4 h-4" />
 					</button>
 				)}
 			</td>
