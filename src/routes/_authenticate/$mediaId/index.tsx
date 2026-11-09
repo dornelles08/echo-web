@@ -4,12 +4,14 @@ import {
 	useParams,
 } from "@tanstack/react-router";
 import { Clock, Globe, Tag } from "lucide-react";
+import { useState } from "react";
 
 import { StatusBadge } from "@/components/StatusBadge";
 import { COMMON_LANGUAGES } from "@/config/constantes";
 import { useGenerateSummary } from "@/hooks/useGenerateSummary";
 import { useMedia } from "@/hooks/useMedia";
 import { useUserLimits } from "@/hooks/useUserLimits";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDuration } from "@/lib/duration";
 import { SummaryPanel } from "./-components/SummaryPanel";
 import { TranscriptionList } from "./-components/TranscriptionList";
@@ -18,12 +20,13 @@ export const Route = createFileRoute("/_authenticate/$mediaId/")({
 	component: MediaDetailsPage,
 });
 
-export default function MediaDetailsPage() {
+function MediaDetailsPage() {
 	const { mediaId } = useParams({ from: "/_authenticate/$mediaId/" });
 	const navigate = useNavigate();
-	const { data, isError, isLoading } = useMedia(mediaId);
+	const { data, isError, isLoading, error: mediaError } = useMedia(mediaId);
 	const generateSummaryMutation = useGenerateSummary(mediaId);
 	const { canGenerateSummary } = useUserLimits();
+	const [summaryError, setSummaryError] = useState<string | null>(null);
 
 	if (isLoading) {
 		return (
@@ -39,7 +42,9 @@ export default function MediaDetailsPage() {
 	if (isError) {
 		return (
 			<div className="flex items-center justify-center h-full">
-				<p className="text-destructive">Erro ao carregar mídia</p>
+				<p className="text-destructive">
+					{getApiErrorMessage(mediaError, "Erro ao carregar mídia.")}
+				</p>
 			</div>
 		);
 	}
@@ -64,10 +69,12 @@ export default function MediaDetailsPage() {
 		canGenerateSummary(summaryAttempts);
 
 	const handleGenerateSummary = async (prompt: string) => {
+		setSummaryError(null);
 		try {
 			await generateSummaryMutation.mutateAsync({ prompt });
 		} catch (error) {
 			console.error("Erro ao gerar resumo:", error);
+			setSummaryError(getApiErrorMessage(error, "Erro ao gerar resumo."));
 		}
 	};
 
@@ -125,6 +132,8 @@ export default function MediaDetailsPage() {
 						limitReason={limitReason}
 						onGenerate={handleGenerateSummary}
 						onUpgrade={handleUpgrade}
+						isGenerating={generateSummaryMutation.isPending}
+						errorMessage={summaryError}
 					/>
 				</div>
 			</div>

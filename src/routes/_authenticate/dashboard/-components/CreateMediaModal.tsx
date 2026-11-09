@@ -33,6 +33,7 @@ import {
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useUploadAndCreateMedia } from "@/hooks/useUploadMedia";
 import { useUserLimits } from "@/hooks/useUserLimits";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDuration } from "@/lib/duration";
 import {
 	type CreateMediaFormData,
@@ -532,9 +533,10 @@ export function CreateMediaModal({
 					{/* Mensagem de erro geral */}
 					{uploadMutation.isError && (
 						<div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
-							{uploadMutation.error instanceof Error
-								? uploadMutation.error.message
-								: "Erro ao fazer upload. Tente novamente."}
+							{getApiErrorMessage(
+								uploadMutation.error,
+								"Erro ao fazer upload. Tente novamente.",
+							)}
 						</div>
 					)}
 

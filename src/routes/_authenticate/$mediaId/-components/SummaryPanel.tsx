@@ -20,6 +20,7 @@ interface SummaryPanelProps {
 	onGenerate: (prompt: string) => void;
 	onUpgrade?: () => void;
 	isGenerating?: boolean;
+	errorMessage?: string | null;
 }
 
 const CUSTOM_PROMPT_VALUE = "custom";
@@ -34,6 +35,7 @@ export function SummaryPanel({
 	onGenerate,
 	onUpgrade,
 	isGenerating,
+	errorMessage,
 }: SummaryPanelProps) {
 	const { data: templates = [], isLoading } = useSummaryTemplates();
 	const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
@@ -242,6 +244,12 @@ export function SummaryPanel({
 										{renderTemplatesList()}
 
 										{isCustomPrompt && renderCustomPromptInput()}
+
+										{errorMessage && (
+											<div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+												{errorMessage}
+											</div>
+										)}
 
 										<Button
 											onClick={handleGenerate}

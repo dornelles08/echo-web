@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLogin, useSocialLogin } from "@/hooks/useAuth";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { type LoginFormData, loginSchema } from "@/schemas/auth.schema";
 
 import { Divider } from "./-components/divider";
@@ -144,7 +145,10 @@ function RouteComponent() {
 
 				{(loginMutation.isError || socialLoginMutation.isError) && (
 					<div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl text-sm">
-						E-mail ou senha incorretos. Tente novamente.
+						{getApiErrorMessage(
+							loginMutation.error ?? socialLoginMutation.error,
+							"E-mail ou senha incorretos. Tente novamente.",
+						)}
 					</div>
 				)}
 

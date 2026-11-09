@@ -1,5 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
+import { getApiErrorMessage } from "./api-error";
+
 export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
 
 const TOKEN_STORAGE_KEY = "auth_token";
@@ -9,6 +11,8 @@ export const tokenStorage = {
 	set: (token: string) => localStorage.setItem(TOKEN_STORAGE_KEY, token),
 	clear: () => localStorage.removeItem(TOKEN_STORAGE_KEY),
 };
+
+export * from "./api-error";
 
 export const api = axios.create({
 	baseURL: API_URL,
@@ -59,6 +63,14 @@ function redirectToSignIn() {
 api.interceptors.response.use(
 	(response) => response,
 	async (error: AxiosError) => {
+		// Adapt to the new structured error format of @echo-api/:
+		// { statusCode, error, message, details? }. Surface the API message (or a
+		// friendly mapping of its code) instead of Axios' generic one.
+		const apiMessage = getApiErrorMessage(error);
+		if (apiMessage && error.message !== apiMessage) {
+			error.message = apiMessage;
+		}
+
 		const status = error.response?.status;
 		const originalRequest = error.config as RetriableRequestConfig | undefined;
 
