@@ -1,11 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { api, tokenStorage } from "@/lib/api";
+import { api } from "@/lib/api";
+import { authClient } from "@/lib/auth-client";
 import type { LoginFormData, RegisterFormData } from "@/schemas/auth.schema";
-
-export interface AuthResponse {
-	token: string;
-}
 
 export type Provider = "google" | "github";
 
@@ -37,12 +34,19 @@ export function useLogin() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: async (data: LoginFormData): Promise<AuthResponse> => {
-			const response = await api.post<AuthResponse>("/authenticate", data);
-			return response.data;
+		mutationFn: async (data: LoginFormData) => {
+			const result = await authClient.signIn.email({
+				email: data.email,
+				password: data.password,
+			});
+
+			if (result.error) {
+				throw new Error(result.error.message ?? "Falha ao entrar.");
+			}
+
+			return result.data;
 		},
-		onSuccess: async (data) => {
-			tokenStorage.set(data.token);
+		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: profileQueryKey });
 		},
 	});
@@ -50,15 +54,25 @@ export function useLogin() {
 
 export function useRegister() {
 	return useMutation({
-		mutationFn: async (data: RegisterFormData): Promise<void> => {
-			await api.post("/users", data);
+		mutationFn: async (data: RegisterFormData) => {
+			const result = await authClient.signUp.email({
+				name: data.name,
+				email: data.email,
+				password: data.password,
+			});
+
+			if (result.error) {
+				throw new Error(result.error.message ?? "Falha ao criar conta.");
+			}
+
+			return result.data;
 		},
 	});
 }
 
 export function useSocialLogin() {
 	return useMutation({
-		mutationFn: async (_provider: Provider): Promise<never> => {
+		mutationFn: async (_provider: "google" | "github"): Promise<never> => {
 			throw new Error("Login social ainda não está disponível.");
 		},
 	});
@@ -69,7 +83,7 @@ export function useLogout() {
 
 	return useMutation({
 		mutationFn: async () => {
-			tokenStorage.clear();
+			await authClient.signOut();
 		},
 		onSuccess: () => {
 			queryClient.clear();
@@ -85,7 +99,6 @@ export function useProfile() {
 			const response = await api.get<{ user: UserProfile }>("/me");
 			return response.data.user;
 		},
-		enabled: !!tokenStorage.get(),
 		staleTime: 1000 * 60,
 	});
 }

@@ -1,12 +1,13 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 import { Topbar } from "@/components/Topbar";
+import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/_authenticate")({
 	beforeLoad: async () => {
-		const token = localStorage.getItem("auth_token");
+		const session = await authClient.getSession();
 
-		if (!token) {
+		if (!session.data?.session) {
 			throw redirect({ to: "/sign-in", search: { plan: undefined } });
 		}
 	},
