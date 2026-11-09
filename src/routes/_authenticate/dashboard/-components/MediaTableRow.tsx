@@ -1,4 +1,4 @@
-import { FileIcon } from "lucide-react";
+import { FileIcon, Trash2 } from "lucide-react";
 
 import { StatusBadge } from "@/components/StatusBadge";
 import { formatDuration } from "@/lib/duration";
@@ -8,9 +8,22 @@ import { MediaIcon } from "./MediaIcon";
 interface MediaTableRowProps {
 	media: Media;
 	onClick?: () => void;
+	onDelete?: (media: Media) => void;
 }
 
-export function MediaTableRow({ media, onClick }: MediaTableRowProps) {
+export function MediaTableRow({ media, onClick, onDelete }: MediaTableRowProps) {
+	function handleDeleteClick(event: React.MouseEvent) {
+		event.stopPropagation();
+
+		if (
+			window.confirm(
+				`Tem certeza que deseja excluir "${media.filename}"?\n\nO arquivo será removido do storage e do banco. Os minutos já consumidos não serão devolvidos ao seu plano mensal.`,
+			)
+		) {
+			onDelete?.(media);
+		}
+	}
+
 	return (
 		<tr
 			onClick={onClick}
@@ -50,6 +63,17 @@ export function MediaTableRow({ media, onClick }: MediaTableRowProps) {
 						</span>
 					))}
 				</div>
+			</td>
+
+			<td className="px-6 py-4 text-right">
+				{onDelete && (
+					<button
+						onClick={handleDeleteClick}
+						className="text-xs text-destructive hover:text-destructive/80 underline underline-offset-4"
+					>
+						<Trash2 className="w-3 h-3" /> Excluir
+					</button>
+				)}
 			</td>
 		</tr>
 	);

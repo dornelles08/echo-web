@@ -10,7 +10,7 @@ import { Pagination } from "@/components/Pagination";
 import { UpgradeModal } from "@/components/UpgradeModal";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useMedias } from "@/hooks/useMedia";
+import { useDeleteMedia, useMedias } from "@/hooks/useMedia";
 import { useUserLimits } from "@/hooks/useUserLimits";
 import type { Media } from "@/types/media";
 import { CreateMediaModal } from "./-components/CreateMediaModal";
@@ -40,6 +40,7 @@ function RouteComponent() {
 	const [createMediaModalOpen, setCreateMediaModalOpen] = useState(false);
 	const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 	const { canUpload, isLoading: isProfileLoading } = useUserLimits();
+	const deleteMedia = useDeleteMedia();
 
 	const currentPage = (search.page as number) || 1;
 	const currentType = search.type as string | undefined;
@@ -57,6 +58,19 @@ function RouteComponent() {
 
 	function handleMediaClick(media: Media) {
 		navigate({ to: `/${media.id}` });
+	}
+
+	async function handleMediaDelete(media: Media) {
+		if (deleteMedia.isPending) {
+			return;
+		}
+
+		try {
+			await deleteMedia.mutateAsync(media.id);
+		} catch {
+			// O hook já invalida as queries no sucesso; um erro aqui apenas
+			// impede a atualização otimista, e a lista será recarregada.
+		}
 	}
 
 	const handlePageChange = (page: number) => {
@@ -151,7 +165,11 @@ function RouteComponent() {
 					onOpenCreateMedia={() => setCreateMediaModalOpen(true)}
 				/>
 			) : (
-				<MediaTable medias={data.medias} onMediaClick={handleMediaClick} />
+				<MediaTable
+					medias={data.medias}
+					onMediaClick={handleMediaClick}
+					onMediaDelete={handleMediaDelete}
+				/>
 			)}
 
 			{data.medias.length > 0 && (

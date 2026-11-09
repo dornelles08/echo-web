@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/lib/api";
 import type { Media, PaginationInfo } from "@/types/media";
@@ -45,6 +45,21 @@ export function useMedia(id: string) {
 			return response.data;
 		},
 		enabled: !!id,
+	});
+}
+
+export function useDeleteMedia() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (mediaId: string): Promise<void> => {
+			await api.delete(`/medias/${mediaId}`);
+		},
+		onSuccess: (_, mediaId) => {
+			queryClient.invalidateQueries({ queryKey: ["medias"] });
+			queryClient.invalidateQueries({ queryKey: ["profile"] });
+			queryClient.removeQueries({ queryKey: ["media", mediaId] });
+		},
 	});
 }
 
