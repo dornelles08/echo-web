@@ -11,7 +11,11 @@ interface MediaTableRowProps {
 	onDelete?: (media: Media) => void;
 }
 
-export function MediaTableRow({ media, onClick, onDelete }: MediaTableRowProps) {
+export function MediaTableRow({
+	media,
+	onClick,
+	onDelete,
+}: MediaTableRowProps) {
 	function handleDeleteClick(event: React.MouseEvent) {
 		event.stopPropagation();
 
@@ -68,6 +72,7 @@ export function MediaTableRow({ media, onClick, onDelete }: MediaTableRowProps) 
 			<td className="px-6 py-4 text-right">
 				{onDelete && (
 					<button
+						type="button"
 						onClick={handleDeleteClick}
 						className="text-xs text-destructive hover:text-destructive/80 underline underline-offset-4"
 					>
