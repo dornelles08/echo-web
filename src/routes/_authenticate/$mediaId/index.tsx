@@ -120,7 +120,10 @@ function MediaDetailsPage() {
 					</div>
 
 					<div className="flex-1 overflow-hidden">
-						<TranscriptionList segments={media.segments || []} />
+						<TranscriptionList
+							segments={media.segments || []}
+							transcription={media.transcription}
+						/>
 					</div>
 				</div>
 
