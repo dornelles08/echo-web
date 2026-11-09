@@ -134,18 +134,22 @@ export function CreateMediaModal({
 
 			if (fileType === "audio") {
 				const audio = new Audio();
+				const objectUrl = URL.createObjectURL(file);
 				audio.onloadedmetadata = () => {
 					handleDuration(audio.duration);
+					URL.revokeObjectURL(objectUrl);
 				};
-				audio.src = URL.createObjectURL(file);
+				audio.src = objectUrl;
 			}
 			if (fileType === "video") {
 				const video = document.createElement("video");
 				video.preload = "metadata";
+				const objectUrl = URL.createObjectURL(file);
 				video.onloadedmetadata = () => {
 					handleDuration(video.duration);
+					URL.revokeObjectURL(objectUrl);
 				};
-				video.src = URL.createObjectURL(file);
+				video.src = objectUrl;
 			}
 
 			const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");

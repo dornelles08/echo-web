@@ -64,9 +64,23 @@ export function SummaryPanel({
 		}
 	};
 
-	const handleCopyMarkdown = () => {
-		if (currentSummary) {
-			navigator.clipboard.writeText(currentSummary);
+	const handleCopyMarkdown = async () => {
+		if (!currentSummary) return;
+		try {
+			await navigator.clipboard.writeText(currentSummary);
+		} catch {
+			// Fallback for insecure contexts
+			const textarea = document.createElement("textarea");
+			textarea.value = currentSummary;
+			textarea.style.position = "fixed";
+			textarea.style.opacity = "0";
+			document.body.appendChild(textarea);
+			textarea.select();
+			try {
+				document.execCommand("copy");
+			} finally {
+				document.body.removeChild(textarea);
+			}
 		}
 	};
 

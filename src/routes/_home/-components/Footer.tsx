@@ -6,7 +6,7 @@ export function Footer() {
 			<div className="container mx-auto max-w-6xl">
 				<div className="grid md:grid-cols-2 gap-12 mb-12">
 					<div>
-						<img src={logo} alt="Echo" className="h-12 mb-6" />
+						<img src={logo} alt="Echo" className="h-12 mb-6" loading="lazy" />
 						<p className="text-muted-foreground leading-relaxed max-w-sm">
 							A plataforma inteligente de transcrição que auxilia profissionais
 							e equipes a transformar conversas em resultados.
