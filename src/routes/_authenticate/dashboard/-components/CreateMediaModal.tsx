@@ -30,6 +30,7 @@ import {
 	UPLOAD_CONFIG,
 	validateFileType,
 } from "@/config/upload";
+import { useToast } from "@/context/ToastContext";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useUploadAndCreateMedia } from "@/hooks/useUploadMedia";
 import { useUserLimits } from "@/hooks/useUserLimits";
@@ -60,6 +61,7 @@ export function CreateMediaModal({
 	const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
 	const { canUploadVideo, validateDuration } = useUserLimits();
+	const { showToast } = useToast();
 
 	const {
 		state: recorderState,
@@ -104,15 +106,16 @@ export function CreateMediaModal({
 			setDurationError(null);
 
 			if (file.size > UPLOAD_CONFIG.maxFileSize) {
-				alert(
+				showToast(
 					`Arquivo muito grande! Máximo: ${formatFileSize(UPLOAD_CONFIG.maxFileSize)}`,
+					"error",
 				);
 				return;
 			}
 
 			const fileType = validateFileType(file);
 			if (!fileType) {
-				alert("Tipo de arquivo não suportado!");
+				showToast("Tipo de arquivo não suportado!", "error");
 				return;
 			}
 
@@ -157,7 +160,7 @@ export function CreateMediaModal({
 			setSelectedFile(file);
 			setValue("file", file);
 		},
-		[setValue, canUploadVideo, validateDuration],
+		[setValue, canUploadVideo, validateDuration, showToast],
 	);
 
 	const handleDrag = useCallback((e: React.DragEvent) => {
@@ -195,7 +198,10 @@ export function CreateMediaModal({
 			await startRecording();
 		} catch (error) {
 			console.error("Erro ao iniciar gravação:", error);
-			alert("Não foi possível acessar o microfone. Verifique as permissões.");
+			showToast(
+				"Não foi possível acessar o microfone. Verifique as permissões.",
+				"error",
+			);
 		}
 	};
 
@@ -208,7 +214,10 @@ export function CreateMediaModal({
 			const duration = recorderState.duration;
 			const validation = validateDuration(duration);
 			if (!validation.valid) {
-				alert(validation.message || "Gravação excede tempo restante");
+				showToast(
+					validation.message || "Gravação excede tempo restante",
+					"error",
+				);
 				return;
 			}
 
@@ -229,6 +238,7 @@ export function CreateMediaModal({
 		recorderState.duration,
 		setValue,
 		validateDuration,
+		showToast,
 	]);
 
 	const handleResetRecording = () => {
