@@ -1,9 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Check, HelpCircle, X } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { usePlans } from "@/hooks/usePlans";
+import { useSession } from "@/lib/auth-client";
 import {
 	planBadgeMap,
 	planDescriptionsMap,
@@ -101,7 +102,18 @@ export function PricingSection() {
 	const plansSectionId = "planos";
 	const [openFaq, setOpenFaq] = useState<number | null>(null);
 	const { data: plans, isLoading } = usePlans();
-	const isLoggedIn = !!localStorage.getItem("auth_token");
+	const { data: session } = useSession();
+	const isLoggedIn = !!session?.session;
+
+	const sortedPlans = useMemo(
+		() =>
+			plans
+				? [...plans].sort(
+						(a, b) => a.monthlyMinutesLimit - b.monthlyMinutesLimit,
+					)
+				: [],
+		[plans],
+	);
 
 	const handlePlanClick = (planId: string) => {
 		if (isLoggedIn) {
@@ -127,10 +139,6 @@ export function PricingSection() {
 	if (!plans) {
 		return null;
 	}
-
-	const sortedPlans = [...plans].sort(
-		(a, b) => a.monthlyMinutesLimit - b.monthlyMinutesLimit,
-	);
 
 	return (
 		<section
