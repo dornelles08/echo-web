@@ -417,6 +417,27 @@ export function CreateMediaModal({
 					) : (
 						/* Área de Gravação */
 						<div className="space-y-4">
+							{typeof window !== "undefined" && !window.isSecureContext && (
+								<div className="rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/40 p-3 text-sm text-amber-800 dark:text-amber-200">
+									<p className="font-medium mb-1">
+										Microfone indisponível nesta conexão
+									</p>
+									<p>
+										O navegador só libera o microfone em contextos seguros
+										(HTTPS ou localhost). Para testar a gravação em rede local,
+										abra{" "}
+										<code className="px-1 rounded bg-amber-100 dark:bg-amber-900">
+											chrome://flags/#unsafely-treat-insecure-origin-as-secure
+										</code>
+										, adicione a URL{" "}
+										<code className="px-1 rounded bg-amber-100 dark:bg-amber-900">
+											{window.location.origin}
+										</code>{" "}
+										e reinicie o Chrome. Alternativamente, use um túnel HTTPS
+										(ngrok/cloudflared) ou rode o app via HTTPS.
+									</p>
+								</div>
+							)}
 							<AudioRecorder
 								isRecording={isRecording}
 								isPaused={isPaused}
