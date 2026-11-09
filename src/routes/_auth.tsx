@@ -2,13 +2,14 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { Moon, Sun } from "lucide-react";
 
 import { useTheme } from "@/context/ThemeContext";
+import { authClient } from "@/lib/auth-client";
 
 import logo from "../assets/Echo Light 1650x650 - sem fundo.png";
 
 export const Route = createFileRoute("/_auth")({
-	beforeLoad: () => {
-		const token = localStorage.getItem("auth_token");
-		if (token) {
+	beforeLoad: async () => {
+		const session = await authClient.getSession();
+		if (session.data?.session) {
 			throw redirect({ to: "/dashboard", search: { page: 1 } });
 		}
 	},

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRegister, useSocialLogin } from "@/hooks/useAuth";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { type RegisterFormData, registerSchema } from "@/schemas/auth.schema";
 
 import { Divider } from "./-components/divider";
@@ -119,6 +120,7 @@ function RouteComponent() {
 						<button
 							type="button"
 							onClick={() => setShowPassword(!showPassword)}
+							aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
 							className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
 						>
 							{showPassword ? (
@@ -137,11 +139,10 @@ function RouteComponent() {
 
 				{(registerMutation.isError || socialLoginMutation.isError) && (
 					<div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl text-sm">
-						{registerMutation.error instanceof Error
-							? registerMutation.error.message
-							: socialLoginMutation.error instanceof Error
-								? socialLoginMutation.error.message
-								: "Erro ao criar conta. Tente novamente."}
+						{getApiErrorMessage(
+							registerMutation.error ?? socialLoginMutation.error,
+							"Erro ao criar conta. Tente novamente.",
+						)}
 					</div>
 				)}
 

@@ -3,6 +3,7 @@ import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 
 import { ThemeProvider } from "./context/ThemeContext.tsx";
+import { Toaster, ToastProvider } from "./context/ToastContext.tsx";
 import * as TanStackQueryProvider from "./integrations/tanstack-query/root-provider.tsx";
 import reportWebVitals from "./reportWebVitals.ts";
 // Import the generated route tree
@@ -38,7 +39,10 @@ if (rootElement && !rootElement.innerHTML) {
 		<StrictMode>
 			<TanStackQueryProvider.Provider {...TanStackQueryProviderContext}>
 				<ThemeProvider>
-					<RouterProvider router={router} />
+					<ToastProvider>
+						<RouterProvider router={router} />
+						<Toaster />
+					</ToastProvider>
 				</ThemeProvider>
 			</TanStackQueryProvider.Provider>
 		</StrictMode>,

@@ -102,6 +102,8 @@ export function Topbar() {
 						<button
 							type="button"
 							onClick={() => setDropdownOpen(!dropdownOpen)}
+							aria-expanded={dropdownOpen}
+							aria-haspopup="menu"
 							className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-secondary transition-colors"
 						>
 							<div className="w-8 h-8 rounded-full bg-linear-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-xs font-semibold">
@@ -141,7 +143,12 @@ export function Topbar() {
 
 					<Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
 						<SheetTrigger asChild className="md:hidden">
-							<Button variant="ghost" size="icon" className="md:hidden">
+							<Button
+								variant="ghost"
+								size="icon"
+								className="md:hidden"
+								aria-label="Abrir menu"
+							>
 								<Menu className="w-5 h-5" />
 							</Button>
 						</SheetTrigger>

@@ -30,9 +30,11 @@ import {
 	UPLOAD_CONFIG,
 	validateFileType,
 } from "@/config/upload";
+import { useToast } from "@/context/ToastContext";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useUploadAndCreateMedia } from "@/hooks/useUploadMedia";
 import { useUserLimits } from "@/hooks/useUserLimits";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDuration } from "@/lib/duration";
 import {
 	type CreateMediaFormData,
@@ -59,6 +61,7 @@ export function CreateMediaModal({
 	const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
 	const { canUploadVideo, validateDuration } = useUserLimits();
+	const { showToast } = useToast();
 
 	const {
 		state: recorderState,
@@ -103,15 +106,16 @@ export function CreateMediaModal({
 			setDurationError(null);
 
 			if (file.size > UPLOAD_CONFIG.maxFileSize) {
-				alert(
+				showToast(
 					`Arquivo muito grande! Máximo: ${formatFileSize(UPLOAD_CONFIG.maxFileSize)}`,
+					"error",
 				);
 				return;
 			}
 
 			const fileType = validateFileType(file);
 			if (!fileType) {
-				alert("Tipo de arquivo não suportado!");
+				showToast("Tipo de arquivo não suportado!", "error");
 				return;
 			}
 
@@ -133,18 +137,22 @@ export function CreateMediaModal({
 
 			if (fileType === "audio") {
 				const audio = new Audio();
+				const objectUrl = URL.createObjectURL(file);
 				audio.onloadedmetadata = () => {
 					handleDuration(audio.duration);
+					URL.revokeObjectURL(objectUrl);
 				};
-				audio.src = URL.createObjectURL(file);
+				audio.src = objectUrl;
 			}
 			if (fileType === "video") {
 				const video = document.createElement("video");
 				video.preload = "metadata";
+				const objectUrl = URL.createObjectURL(file);
 				video.onloadedmetadata = () => {
 					handleDuration(video.duration);
+					URL.revokeObjectURL(objectUrl);
 				};
-				video.src = URL.createObjectURL(file);
+				video.src = objectUrl;
 			}
 
 			const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
@@ -152,7 +160,7 @@ export function CreateMediaModal({
 			setSelectedFile(file);
 			setValue("file", file);
 		},
-		[setValue, canUploadVideo, validateDuration],
+		[setValue, canUploadVideo, validateDuration, showToast],
 	);
 
 	const handleDrag = useCallback((e: React.DragEvent) => {
@@ -190,7 +198,10 @@ export function CreateMediaModal({
 			await startRecording();
 		} catch (error) {
 			console.error("Erro ao iniciar gravação:", error);
-			alert("Não foi possível acessar o microfone. Verifique as permissões.");
+			showToast(
+				"Não foi possível acessar o microfone. Verifique as permissões.",
+				"error",
+			);
 		}
 	};
 
@@ -203,7 +214,10 @@ export function CreateMediaModal({
 			const duration = recorderState.duration;
 			const validation = validateDuration(duration);
 			if (!validation.valid) {
-				alert(validation.message || "Gravação excede tempo restante");
+				showToast(
+					validation.message || "Gravação excede tempo restante",
+					"error",
+				);
 				return;
 			}
 
@@ -224,6 +238,7 @@ export function CreateMediaModal({
 		recorderState.duration,
 		setValue,
 		validateDuration,
+		showToast,
 	]);
 
 	const handleResetRecording = () => {
@@ -532,9 +547,10 @@ export function CreateMediaModal({
 					{/* Mensagem de erro geral */}
 					{uploadMutation.isError && (
 						<div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
-							{uploadMutation.error instanceof Error
-								? uploadMutation.error.message
-								: "Erro ao fazer upload. Tente novamente."}
+							{getApiErrorMessage(
+								uploadMutation.error,
+								"Erro ao fazer upload. Tente novamente.",
+							)}
 						</div>
 					)}
 
