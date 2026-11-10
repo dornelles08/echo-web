@@ -7,11 +7,16 @@ export * from "./api-error";
 export const API_URL = (() => {
 	const envUrl = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
 
-	// When the app is opened from another machine on the LAN (e.g.
-	// http://192.168.x.x:3000), the configured API URL (localhost:3333)
-	// would point at the client's own machine. Rewrite it to the same host
-	// the page was loaded from so requests reach the server.
-	if (typeof window !== "undefined") {
+	// Se VITE_API_URL foi definido explicitamente, use-o.
+	// Obrigatório em produção quando front e back estão em domínios distintos.
+	if (import.meta.env.VITE_API_URL) {
+		return envUrl.replace(/\/$/, "");
+	}
+
+	// Somente em desenvolvimento permite inferir a API da origem da página.
+	// Útil para túneis ngrok sem precisar mudar a URL a cada túnel.
+	// Em produção não infere dinamicamente por segurança.
+	if (import.meta.env.DEV && typeof window !== "undefined") {
 		try {
 			const parsed = new URL(envUrl);
 			const isLocalhost =
@@ -21,8 +26,7 @@ export const API_URL = (() => {
 				window.location.hostname !== "127.0.0.1";
 
 			if (isLocalhost && clientIsRemote) {
-				parsed.hostname = window.location.hostname;
-				return parsed.toString().replace(/\/$/, "");
+				return window.location.origin.replace(/\/$/, "");
 			}
 		} catch {
 			// ignore malformed env URL and fall back to the default
