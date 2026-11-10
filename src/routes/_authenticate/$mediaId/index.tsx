@@ -15,6 +15,7 @@ import { getApiErrorMessage } from "@/lib/api-error";
 import { formatDuration } from "@/lib/duration";
 import { SummaryPanel } from "./-components/SummaryPanel";
 import { TranscriptionList } from "./-components/TranscriptionList";
+import { TranscriptionRetryCard } from "./-components/TranscriptionRetryCard";
 
 export const Route = createFileRoute("/_authenticate/$mediaId/")({
 	component: MediaDetailsPage,
@@ -120,6 +121,21 @@ function MediaDetailsPage() {
 					</div>
 
 					<div className="flex-1 overflow-hidden">
+						{media.status === "failed_transcription" && (
+							<TranscriptionRetryCard
+								media={{
+									id: media.id,
+									filename: media.filename,
+									duration: media.duration,
+									status: media.status,
+									transcriptionAttempts: media.transcriptionAttempts,
+								}}
+								onSuccess={() => {
+									// Atualiza a página para refletir o novo status
+									window.location.reload();
+								}}
+							/>
+						)}
 						<TranscriptionList
 							segments={media.segments || []}
 							transcription={media.transcription}

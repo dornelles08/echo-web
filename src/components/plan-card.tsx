@@ -38,7 +38,7 @@ export function PlanCard({
 			{badge && (
 				<div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
 					<div
-						className={`rounded-full px-4 py-1.5 text-xs font-semibold shadow-lg ${
+						className={`rounded-full px-4 py-1.5 text-xs font-semibold shadow-lg whitespace-nowrap ${
 							isPopular
 								? "bg-white text-emerald-700"
 								: "bg-emerald-600 text-white"

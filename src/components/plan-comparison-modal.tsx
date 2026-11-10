@@ -79,8 +79,8 @@ export function PlanComparisonModal({
 
 					<div className="relative rounded-2xl border-2 border-emerald-500 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-950/30 dark:to-card p-6 shadow-lg shadow-emerald-500/10">
 						{isUpgrade && (
-							<div className="absolute -top-3 left-1/2 -translate-x-1/2">
-								<span className="rounded-full bg-emerald-500 px-4 py-1 text-xs font-semibold text-white shadow-lg">
+							<div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10">
+								<span className="rounded-full bg-emerald-500 px-4 py-1 text-xs font-semibold text-white shadow-lg whitespace-nowrap">
 									Melhor escolha
 								</span>
 							</div>
