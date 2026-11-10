@@ -36,6 +36,8 @@ export const API_ERROR_MESSAGES: Record<string, string> = {
 	VIDEO_NOT_ALLOWED: "Seu plano atual não permite upload de vídeos.",
 	SUMMARY_ATTEMPTS_EXCEEDED:
 		"Você atingiu o limite de tentativas de resumo para esta mídia.",
+	TRANSCRIPTION_ATTEMPTS_EXCEEDED:
+		"Não foi possível transcrever este áudio após 3 tentativas. Entre em contato com o suporte para investigar o problema.",
 	INVALID_STATUS: "A operação não pode ser realizada no estado atual.",
 	VALIDATION_ERROR: "Os dados enviados são inválidos.",
 	INTERNAL_SERVER_ERROR:

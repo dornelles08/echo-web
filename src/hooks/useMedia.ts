@@ -63,6 +63,20 @@ export function useDeleteMedia() {
 	});
 }
 
+export function useRetryTranscription() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (mediaId: string): Promise<void> => {
+			await api.post(`/medias/${mediaId}/retry-transcription`);
+		},
+		onSuccess: (_, mediaId) => {
+			queryClient.invalidateQueries({ queryKey: ["medias"] });
+			queryClient.invalidateQueries({ queryKey: ["media", mediaId] });
+		},
+	});
+}
+
 export function useTags() {
 	return useQuery({
 		queryKey: ["tags"],

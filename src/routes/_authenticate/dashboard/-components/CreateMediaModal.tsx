@@ -54,6 +54,7 @@ export function CreateMediaModal({
 	onOpenChange,
 }: UploadMediaModalProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const recordingFileRef = useRef<File | null>(null);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [dragActive, setDragActive] = useState(false);
 	const [inputMode, setInputMode] = useState<InputMode>("upload");
@@ -210,29 +211,56 @@ export function CreateMediaModal({
 	};
 
 	const handleConfirmRecording = useCallback(() => {
-		if (recorderState.audioBlob) {
-			const duration = recorderState.duration;
-			const validation = validateDuration(duration);
-			if (!validation.valid) {
-				showToast(
-					validation.message || "Gravação excede tempo restante",
-					"error",
-				);
-				return;
-			}
-
-			const extension = "webm";
-			const filename = `gravacao-${Date.now()}.${extension}`;
-			const file = new File([recorderState.audioBlob], filename, {
-				type: "audio/webm",
-			});
-
-			const fileNameWithoutExtension = filename.replace(/\.[^/.]+$/, "");
-			setValue("filename", fileNameWithoutExtension);
-			setSelectedFile(file);
-			setValue("file", file);
-			setValue("duration", recorderState.duration);
+		if (!recorderState.audioBlob) {
+			showToast(
+				"Nenhuma gravação encontrada. Tente gravar novamente.",
+				"error",
+			);
+			return;
 		}
+
+		// Se o blob estiver vazio, algo falhou na captura do MediaRecorder.
+		// Evita enviar um arquivo de tamanho 0 para o storage.
+		if (recorderState.audioBlob.size === 0) {
+			console.error(
+				"[AudioRecorder] Blob de áudio está vazio. Tamanho: 0 bytes.",
+			);
+			showToast(
+				"A gravação não capturou áudio. Tente gravar novamente.",
+				"error",
+			);
+			return;
+		}
+
+		const duration = recorderState.duration;
+		const validation = validateDuration(duration);
+		if (!validation.valid) {
+			showToast(
+				validation.message || "Gravação excede tempo restante",
+				"error",
+			);
+			return;
+		}
+
+		const extension = "webm";
+		const filename = `gravacao-${Date.now()}.${extension}`;
+		const file = new File([recorderState.audioBlob], filename, {
+			type: "audio/webm",
+		});
+
+		console.log(
+			`[CreateMediaModal] File criado: ${file.name} (${file.size} bytes, ${file.type})`,
+		);
+
+		// Armazena no ref para uso direto no upload, contornando possíveis
+		// perdas de instância pelo react-hook-form.
+		recordingFileRef.current = file;
+
+		const fileNameWithoutExtension = filename.replace(/\.[^/.]+$/, "");
+		setValue("filename", fileNameWithoutExtension);
+		setSelectedFile(file);
+		setValue("file", file);
+		setValue("duration", recorderState.duration);
 	}, [
 		recorderState.audioBlob,
 		recorderState.duration,
@@ -244,21 +272,46 @@ export function CreateMediaModal({
 	const handleResetRecording = () => {
 		resetRecorder();
 		setSelectedFile(null);
+		recordingFileRef.current = null;
 		resetField("file", { defaultValue: undefined });
 		resetField("duration", { defaultValue: undefined });
 		resetField("filename", { defaultValue: "" });
 	};
 
 	async function handleCreateMedia(data: CreateMediaFormData) {
-		if (!selectedFile) return;
+		// Usa o File da gravação armazenado no ref como fallback, pois o
+		// react-hook-form pode não preservar a instância File através do
+		// handleSubmit em alguns cenários.
+		const fileToUpload = recordingFileRef.current ?? data.file;
 
-		const fileType = validateFileType(selectedFile);
-		if (!fileType) return;
+		if (!fileToUpload) {
+			console.error("[CreateMediaModal] Nenhum arquivo para upload.");
+			showToast("Nenhum arquivo para enviar.", "error");
+			return;
+		}
+
+		console.log(
+			`[CreateMediaModal] Iniciando upload: ${fileToUpload.name} (${fileToUpload.size} bytes, ${fileToUpload.type})`,
+		);
+
+		if (fileToUpload.size === 0) {
+			console.error(
+				"[CreateMediaModal] Arquivo com tamanho 0. Abortando upload.",
+			);
+			showToast("O arquivo está vazio. Tente gravar novamente.", "error");
+			return;
+		}
+
+		const fileType = validateFileType(fileToUpload);
+		if (!fileType) {
+			showToast("Tipo de arquivo não suportado!", "error");
+			return;
+		}
 
 		try {
 			await uploadMutation.mutateAsync({
 				filename: data.filename,
-				file: data.file,
+				file: fileToUpload,
 				type: fileType,
 				language: data.language,
 				duration: data.duration,
@@ -295,6 +348,7 @@ export function CreateMediaModal({
 
 	const handleClose = () => {
 		reset();
+		uploadMutation.reset();
 		setSelectedFile(null);
 		resetRecorder();
 		setInputMode("upload");

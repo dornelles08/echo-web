@@ -80,20 +80,41 @@ export function useAudioRecorder(): UseAudioRecorder {
 			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			streamRef.current = stream;
 
+			// Tenta usar o mimeType preferido, com fallback para um formato mais
+			// amplamente suportado caso o navegador não aceite codecs específicos.
+			const preferredMimeType = "audio/webm;codecs=opus";
+			const mimeType = MediaRecorder.isTypeSupported?.(preferredMimeType)
+				? preferredMimeType
+				: MediaRecorder.isTypeSupported?.("audio/webm")
+					? "audio/webm"
+					: undefined;
+
 			const mediaRecorder = new MediaRecorder(stream, {
-				mimeType: "audio/webm;codecs=opus",
+				...(mimeType ? { mimeType } : {}),
 			});
 
 			mediaRecorderRef.current = mediaRecorder;
 			chunksRef.current = [];
 
 			mediaRecorder.ondataavailable = (event) => {
+				console.log(
+					`[AudioRecorder] ondataavailable: size=${event.data.size} type=${event.data.type}`,
+				);
 				if (event.data.size > 0) {
 					chunksRef.current.push(event.data);
 				}
 			};
 
 			mediaRecorder.onstop = () => {
+				console.log(
+					`[AudioRecorder] onstop: chunks=${chunksRef.current.length}`,
+				);
+				const totalSize = chunksRef.current.reduce(
+					(acc, chunk) => acc + chunk.size,
+					0,
+				);
+				console.log(`[AudioRecorder] onstop: totalSize=${totalSize} bytes`);
+
 				const blob = new Blob(chunksRef.current, { type: "audio/webm" });
 				const url = URL.createObjectURL(blob);
 
@@ -107,7 +128,14 @@ export function useAudioRecorder(): UseAudioRecorder {
 				clearTimer();
 			};
 
-			mediaRecorder.start(1000);
+			mediaRecorder.onerror = (event) => {
+				console.error("[AudioRecorder] MediaRecorder error:", event);
+			};
+
+			// Sem timeslice: acumula tudo em um único Blob entregue no onstop.
+			// Usar start(1000) fazia o ondataavailable disparar apenas a cada 1s,
+			// resultando em chunks vazios para gravações curtas.
+			mediaRecorder.start();
 			setState((prev) => ({ ...prev, status: "recording" }));
 			startTimer();
 		} catch (error) {
@@ -121,6 +149,9 @@ export function useAudioRecorder(): UseAudioRecorder {
 			mediaRecorderRef.current &&
 			mediaRecorderRef.current.state !== "inactive"
 		) {
+			// requestData() é assíncrono; não garantimos que os dados estejam
+			// prontos antes do stop(). Como usamos start() sem timeslice, todos
+			// os dados acumulados são entregues automaticamente no onstop.
 			mediaRecorderRef.current.stop();
 		}
 

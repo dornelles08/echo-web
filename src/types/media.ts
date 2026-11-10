@@ -33,6 +33,7 @@ export interface Media {
 	summary: string[];
 	summaryPrompt?: string;
 	summaryAttempts: number;
+	transcriptionAttempts: number;
 	status: MediaStatus;
 	tags: string[];
 	segments: Segment[];
