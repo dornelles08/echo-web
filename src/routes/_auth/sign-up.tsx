@@ -12,7 +12,11 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRegister, useSocialLogin } from "@/hooks/useAuth";
+import {
+	useAvailableSocialProviders,
+	useRegister,
+	useSocialLogin,
+} from "@/hooks/useAuth";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { type RegisterFormData, registerSchema } from "@/schemas/auth.schema";
 
@@ -32,6 +36,7 @@ function RouteComponent() {
 	const { plan: planId } = useSearch({ from: "/_auth/sign-up" });
 	const registerMutation = useRegister();
 	const socialLoginMutation = useSocialLogin();
+	const { data: availableProviders = [] } = useAvailableSocialProviders();
 
 	const passwordFieldsId = useId();
 	const emailFieldsId = useId();
@@ -168,6 +173,7 @@ function RouteComponent() {
 			<Divider />
 
 			<SocialSignInButtons
+				availableProviders={availableProviders}
 				onSignIn={handleSocialSignIn}
 				isSubmitting={isSubmitting || registerMutation.isPending}
 			/>

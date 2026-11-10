@@ -72,8 +72,19 @@ export function useRegister() {
 
 export function useSocialLogin() {
 	return useMutation({
-		mutationFn: async (_provider: "google" | "github"): Promise<never> => {
-			throw new Error("Login social ainda não está disponível.");
+		mutationFn: async (provider: "google" | "github") => {
+			const result = await authClient.signIn.social({
+				provider,
+				callbackURL: `${window.location.origin}/sign-in`,
+			});
+
+			if (result.error) {
+				throw new Error(
+					result.error.message ?? "Falha ao entrar com rede social.",
+				);
+			}
+
+			return result.data;
 		},
 	});
 }
@@ -100,5 +111,18 @@ export function useProfile() {
 			return response.data.user;
 		},
 		staleTime: 1000 * 60,
+	});
+}
+
+export function useAvailableSocialProviders() {
+	return useQuery<Provider[]>({
+		queryKey: ["socialProviders"],
+		queryFn: async () => {
+			const response = await api.get<{ providers: string[] }>(
+				"/auth/providers",
+			);
+			return response.data.providers as Provider[];
+		},
+		staleTime: 1000 * 60 * 10,
 	});
 }
