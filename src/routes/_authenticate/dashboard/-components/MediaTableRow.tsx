@@ -8,7 +8,7 @@ import { MediaIcon } from "./MediaIcon";
 interface MediaTableRowProps {
 	media: Media;
 	onClick?: () => void;
-	onDelete?: (media: Media) => void;
+	onDelete?: () => void;
 }
 
 export function MediaTableRow({
@@ -16,18 +16,6 @@ export function MediaTableRow({
 	onClick,
 	onDelete,
 }: MediaTableRowProps) {
-	function handleDeleteClick(event: React.MouseEvent) {
-		event.stopPropagation();
-
-		if (
-			window.confirm(
-				`Tem certeza que deseja excluir "${media.filename}"?\n\nO arquivo será removido do storage e do banco. Os minutos já consumidos não serão devolvidos ao seu plano mensal.`,
-			)
-		) {
-			onDelete?.(media);
-		}
-	}
-
 	return (
 		<tr
 			onClick={onClick}
@@ -73,7 +61,7 @@ export function MediaTableRow({
 				{onDelete && (
 					<button
 						type="button"
-						onClick={handleDeleteClick}
+						onClick={onDelete}
 						className="text-muted-foreground hover:text-destructive transition-colors p-1"
 						aria-label="Excluir mídia"
 					>

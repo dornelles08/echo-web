@@ -10,10 +10,11 @@ import { Pagination } from "@/components/Pagination";
 import { UpgradeModal } from "@/components/UpgradeModal";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useDeleteMedia, useMedias } from "@/hooks/useMedia";
+import { useMedias } from "@/hooks/useMedia";
 import { useUserLimits } from "@/hooks/useUserLimits";
 import type { Media } from "@/types/media";
 import { CreateMediaModal } from "./-components/CreateMediaModal";
+import { DeleteMediaDialog } from "./-components/DeleteMediaDialog";
 import { EmptyStateSection } from "./-components/EmptyStateSection";
 import { MediaFilters } from "./-components/MediaFilters";
 import { MediaTable } from "./-components/MediaTable";
@@ -39,8 +40,9 @@ function RouteComponent() {
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [createMediaModalOpen, setCreateMediaModalOpen] = useState(false);
 	const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+	const [mediaToDelete, setMediaToDelete] = useState<Media | null>(null);
 	const { canUpload, isLoading: isProfileLoading } = useUserLimits();
-	const deleteMedia = useDeleteMedia();
 
 	const currentPage = (search.page as number) || 1;
 	const currentType = search.type as string | undefined;
@@ -60,17 +62,14 @@ function RouteComponent() {
 		navigate({ to: `/${media.id}` });
 	}
 
-	async function handleMediaDelete(media: Media) {
-		if (deleteMedia.isPending) {
-			return;
-		}
+	function handleOpenDeleteDialog(media: Media) {
+		setMediaToDelete(media);
+		setDeleteDialogOpen(true);
+	}
 
-		try {
-			await deleteMedia.mutateAsync(media.id);
-		} catch {
-			// O hook já invalida as queries no sucesso; um erro aqui apenas
-			// impede a atualização otimista, e a lista será recarregada.
-		}
+	function handleCloseDeleteDialog() {
+		setMediaToDelete(null);
+		setDeleteDialogOpen(false);
 	}
 
 	const handlePageChange = (page: number) => {
@@ -168,7 +167,7 @@ function RouteComponent() {
 				<MediaTable
 					medias={data.medias}
 					onMediaClick={handleMediaClick}
-					onMediaDelete={handleMediaDelete}
+					onMediaDelete={handleOpenDeleteDialog}
 				/>
 			)}
 
@@ -189,6 +188,14 @@ function RouteComponent() {
 				onOpenChange={setUpgradeModalOpen}
 				reason="limit_exceeded"
 			/>
+
+			{mediaToDelete && (
+				<DeleteMediaDialog
+					media={mediaToDelete}
+					open={deleteDialogOpen}
+					onOpenChange={handleCloseDeleteDialog}
+				/>
+			)}
 		</>
 	);
 }
