@@ -16,6 +16,11 @@ export function MediaTableRow({
 	onClick,
 	onDelete,
 }: MediaTableRowProps) {
+	function handleDeleteClick(event: React.MouseEvent) {
+		event.stopPropagation();
+		onDelete?.();
+	}
+
 	return (
 		<tr
 			onClick={onClick}
@@ -61,7 +66,7 @@ export function MediaTableRow({
 				{onDelete && (
 					<button
 						type="button"
-						onClick={onDelete}
+						onClick={handleDeleteClick}
 						className="text-muted-foreground hover:text-destructive transition-colors p-1"
 						aria-label="Excluir mídia"
 					>
