@@ -123,3 +123,10 @@ pnpm format
 - `@tanstack/router-plugin` gera rotas em build/dev.
 - Componentes de rota colocalizados em pastas `-components`.
 - Deploy: nginx com fallback SPA para `index.html`.
+
+### Observabilidade
+
+- **Sentry**: configurado em `src/lib/sentry.ts` e inicializado em `src/main.tsx`. Ativo apenas quando `VITE_SENTRY_DSN` está preenchido. Captura erros de JavaScript não tratados e erros de API (via interceptor de resposta do Axios).
+- **Logger de front**: `src/lib/logger.ts` fornece `getOrCreateTraceId()`, `sendLogToLoki()`, `logError()` e `logEvent()`. O traceId é persistido em `sessionStorage` e enviado no header `X-Trace-ID` de todas as requisições da API (via interceptor de request do Axios).
+- **Axios interceptors**: `src/lib/api.ts` injeta `X-Trace-ID` em toda requisição e captura o `X-Trace-ID` da resposta para atualizar o sessionStorage. Erros de API são logados automaticamente via `logError()`.
+- **Env vars**: `VITE_SENTRY_DSN`, `VITE_LOKI_URL`, `VITE_API_URL`.

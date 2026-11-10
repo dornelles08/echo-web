@@ -5,10 +5,14 @@ import ReactDOM from "react-dom/client";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
 import { Toaster, ToastProvider } from "./context/ToastContext.tsx";
 import * as TanStackQueryProvider from "./integrations/tanstack-query/root-provider.tsx";
+import { initSentry } from "./lib/sentry";
 import reportWebVitals from "./reportWebVitals.ts";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 import "./styles.css";
+
+// Inicializa o Sentry para capturar erros do front-end
+initSentry();
 
 // Create a new router instance
 

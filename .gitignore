@@ -1,12 +1,22 @@
-node_modules
-.DS_Store
-dist
-dist-ssr
-*.local
-count.txt
+# Dependencies
+node_modules/
+.pnpm-store/
+.pnpm-debug.log*
+
+# Build
+dist/
+*.tsbuildinfo
+
+# Environment
 .env
 .env.local
-.nitro
-.tanstack
-.wrangler
-coverage
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store

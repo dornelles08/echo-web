@@ -1,6 +1,7 @@
 import axios, { type AxiosError } from "axios";
 
 import { getApiErrorMessage } from "./api-error";
+import { getOrCreateTraceId, logError, logEvent } from "./logger";
 
 export * from "./api-error";
 
@@ -44,12 +45,37 @@ export const api = axios.create({
 	},
 });
 
+// --- Request interceptor: injeta X-Trace-ID em toda chamada à API ---
+api.interceptors.request.use((config) => {
+	const traceId = getOrCreateTraceId();
+	config.headers["X-Trace-ID"] = traceId;
+	return config;
+});
+
+// --- Response interceptor: captura traceId da resposta e loga erros ---
 api.interceptors.response.use(
-	(response) => response,
+	(response) => {
+		const traceId = response.headers["x-trace-id"] as string | undefined;
+		if (traceId) {
+			sessionStorage.setItem("echo_trace_id", traceId);
+		}
+		return response;
+	},
 	async (error: AxiosError) => {
 		const apiMessage = getApiErrorMessage(error);
 		if (apiMessage && error.message !== apiMessage) {
 			error.message = apiMessage;
+		}
+
+		// Log de erro de API no Loki/Sentry com contexto da requisição
+		if (error.config) {
+			await logError(error, {
+				url: error.config.url,
+				method: error.config.method,
+				status: error.response?.status,
+			});
+		} else {
+			await logError(error);
 		}
 
 		return Promise.reject(error);
