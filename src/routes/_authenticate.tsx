@@ -19,8 +19,8 @@ function AuthneticateLayout() {
 		<div className="h-screen bg-background flex flex-col overflow-hidden">
 			<Topbar />
 
-			<main className="flex-1 p-4 md:p-8 overflow-hidden">
-				<div className="max-w-7xl mx-auto h-full overflow-y-auto">
+			<main className="flex-1 p-4 md:p-8 overflow-y-auto">
+				<div className="max-w-7xl mx-auto h-full">
 					<Outlet />
 				</div>
 			</main>

@@ -61,7 +61,7 @@ export function PlanComparisonModal({
 							</span>
 						</p>
 						<ul className="space-y-2">
-							{currentFeatures.slice(0, 5).map((feature) => (
+							{currentFeatures.map((feature) => (
 								<li
 									key={feature.text}
 									className="flex items-center gap-2 text-sm text-muted-foreground"
@@ -98,7 +98,7 @@ export function PlanComparisonModal({
 							</span>
 						</p>
 						<ul className="space-y-2">
-							{selectedFeatures.slice(0, 5).map((feature) => (
+							{selectedFeatures.map((feature) => (
 								<li
 									key={feature.text}
 									className="flex items-center gap-2 text-sm text-muted-foreground"

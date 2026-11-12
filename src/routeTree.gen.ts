@@ -17,6 +17,7 @@ import { Route as AuthSignInRouteImport } from './routes/_auth/sign-in'
 import { Route as AuthSignUpRouteImport } from './routes/_auth/sign-up'
 import { Route as AuthenticatePlansRouteImport } from './routes/_authenticate/plans'
 import { Route as AuthenticateMediaIdIndexRouteImport } from './routes/_authenticate/$mediaId/index'
+import { Route as AuthenticateContaIndexRouteImport } from './routes/_authenticate/conta/index'
 import { Route as AuthenticateDashboardIndexRouteImport } from './routes/_authenticate/dashboard/index'
 
 const IndexRoute = IndexRouteImport.update({
@@ -58,6 +59,11 @@ const AuthenticateMediaIdIndexRoute =
     path: '/$mediaId/',
     getParentRoute: () => AuthenticateRoute,
   } as any)
+const AuthenticateContaIndexRoute = AuthenticateContaIndexRouteImport.update({
+  id: '/conta/',
+  path: '/conta/',
+  getParentRoute: () => AuthenticateRoute,
+} as any)
 const AuthenticateDashboardIndexRoute =
   AuthenticateDashboardIndexRouteImport.update({
     id: '/dashboard/',
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof AuthSignUpRoute
   '/plans': typeof AuthenticatePlansRoute
   '/$mediaId/': typeof AuthenticateMediaIdIndexRoute
+  '/conta/': typeof AuthenticateContaIndexRoute
   '/dashboard/': typeof AuthenticateDashboardIndexRoute
 }
 export interface FileRoutesByTo {
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/sign-up': typeof AuthSignUpRoute
   '/plans': typeof AuthenticatePlansRoute
   '/$mediaId': typeof AuthenticateMediaIdIndexRoute
+  '/conta': typeof AuthenticateContaIndexRoute
   '/dashboard': typeof AuthenticateDashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/_auth/sign-up': typeof AuthSignUpRoute
   '/_authenticate/plans': typeof AuthenticatePlansRoute
   '/_authenticate/$mediaId/': typeof AuthenticateMediaIdIndexRoute
+  '/_authenticate/conta/': typeof AuthenticateContaIndexRoute
   '/_authenticate/dashboard/': typeof AuthenticateDashboardIndexRoute
 }
 export interface FileRouteTypes {
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/plans'
     | '/$mediaId/'
+    | '/conta/'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/plans'
     | '/$mediaId'
+    | '/conta'
     | '/dashboard'
   id:
     | '__root__'
@@ -124,6 +135,7 @@ export interface FileRouteTypes {
     | '/_auth/sign-up'
     | '/_authenticate/plans'
     | '/_authenticate/$mediaId/'
+    | '/_authenticate/conta/'
     | '/_authenticate/dashboard/'
   fileRoutesById: FileRoutesById
 }
@@ -191,6 +203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticateMediaIdIndexRouteImport
       parentRoute: typeof AuthenticateRoute
     }
+    '/_authenticate/conta/': {
+      id: '/_authenticate/conta/'
+      path: '/conta'
+      fullPath: '/conta/'
+      preLoaderRoute: typeof AuthenticateContaIndexRouteImport
+      parentRoute: typeof AuthenticateRoute
+    }
     '/_authenticate/dashboard/': {
       id: '/_authenticate/dashboard/'
       path: '/dashboard'
@@ -218,12 +237,14 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 interface AuthenticateRouteChildren {
   AuthenticatePlansRoute: typeof AuthenticatePlansRoute
   AuthenticateMediaIdIndexRoute: typeof AuthenticateMediaIdIndexRoute
+  AuthenticateContaIndexRoute: typeof AuthenticateContaIndexRoute
   AuthenticateDashboardIndexRoute: typeof AuthenticateDashboardIndexRoute
 }
 
 const AuthenticateRouteChildren: AuthenticateRouteChildren = {
   AuthenticatePlansRoute: AuthenticatePlansRoute,
   AuthenticateMediaIdIndexRoute: AuthenticateMediaIdIndexRoute,
+  AuthenticateContaIndexRoute: AuthenticateContaIndexRoute,
   AuthenticateDashboardIndexRoute: AuthenticateDashboardIndexRoute,
 }
 

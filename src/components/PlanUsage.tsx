@@ -16,11 +16,16 @@ export function PlanUsage() {
 	const resetDay = cycleEnd.getDate().toString().padStart(2, "0");
 	const resetMonth = (cycleEnd.getMonth() + 1).toString().padStart(2, "0");
 
+	const minutesRemaining = user.plan.monthlyMinutesLimit - user.minutesUsed;
+
 	return (
 		<div className="space-y-2">
 			<div className="flex justify-between items-center text-xs">
 				<span className="text-muted-foreground">
 					{user.minutesUsed}/{user.plan.monthlyMinutesLimit} min
+				</span>
+				<span className="text-sm font-medium text-foreground">
+					Restam {minutesRemaining} min
 				</span>
 				<span className="text-muted-foreground">
 					Reset {resetDay}/{resetMonth}

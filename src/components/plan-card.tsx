@@ -10,6 +10,7 @@ interface PlanCardProps {
 		name: string;
 		description: string | null;
 		price: number;
+		monthlyMinutesLimit: number;
 	};
 	isCurrent?: boolean;
 	isPopular?: boolean;
@@ -74,6 +75,13 @@ export function PlanCard({
 						}`}
 					>
 						{plan.description}
+					</p>
+					<p
+						className={`mt-2 text-sm font-medium ${
+							isPopular ? "text-emerald-200" : "text-muted-foreground"
+						}`}
+					>
+						{plan.monthlyMinutesLimit} minutos de processamento por mês
 					</p>
 				</div>
 

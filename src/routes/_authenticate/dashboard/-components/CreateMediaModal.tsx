@@ -61,7 +61,7 @@ export function CreateMediaModal({
 	const [durationError, setDurationError] = useState<string | null>(null);
 	const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
-	const { canUploadVideo, validateDuration } = useUserLimits();
+	const { user, canUploadVideo, validateDuration } = useUserLimits();
 	const { showToast } = useToast();
 
 	const {
@@ -371,6 +371,50 @@ export function CreateMediaModal({
 							{durationError}
 						</div>
 					)}
+
+					{/* Resumo do plano antes do upload */}
+					<div className="rounded-lg border border-border bg-secondary/50 p-4">
+						<div className="flex items-center justify-between mb-2">
+							<h3 className="text-sm font-semibold text-foreground">
+								Seu plano
+							</h3>
+							<span className="text-xs font-medium rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-emerald-700 dark:text-emerald-300">
+								{user?.plan.name || "Plano"}
+							</span>
+						</div>
+						<div className="grid gap-2 text-sm">
+							<div className="flex justify-between">
+								<span className="text-muted-foreground">
+									Minutos restantes neste ciclo
+								</span>
+								<span
+									className={`font-medium ${
+										(user?.minutesRemaining ?? 0) <= 0
+											? "text-destructive"
+											: "text-foreground"
+									}`}
+								>
+									{user?.minutesRemaining ?? 0} min
+								</span>
+							</div>
+							{!canUploadVideo && (
+								<div className="flex justify-between">
+									<span className="text-muted-foreground">Upload de vídeo</span>
+									<span className="text-muted-foreground text-xs">
+										Não disponível neste plano
+									</span>
+								</div>
+							)}
+						</div>
+						{(user?.minutesRemaining ?? 0) <= 0 && (
+							<div className="mt-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
+								<p className="text-sm text-amber-700 dark:text-amber-300">
+									Seu saldo de minutos está zerado. Faça upgrade do plano para
+									continuar enviando mídias.
+								</p>
+							</div>
+						)}
+					</div>
 					{/* Toggle Upload/Gravação */}
 					<div className="flex gap-2 border-b border-stone-200 dark:border-stone-700 pb-4">
 						<Button
